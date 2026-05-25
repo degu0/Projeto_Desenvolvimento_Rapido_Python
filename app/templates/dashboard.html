@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <section class="page-title">
+    <div>
+      <p class="eyebrow">{{ user.cargo|capitalize }} · {{ user.secretaria }}</p>
+      <h1>Dashboard financeiro</h1>
+    </div>
+  </section>
+
+  {% if message %}
+    <p class="alert success">{{ message }}</p>
+  {% endif %}
+  {% if error %}
+    <p class="alert danger">{{ error }}</p>
+  {% endif %}
+
+  <section class="upload-band">
+    <div>
+      <h2>Importar planilha</h2>
+      <p class="muted">Use um arquivo .xlsx ou .csv com as colunas: secretaria, valor, categoria, descricao, data.</p>
+    </div>
+    <form method="post" action="/upload" enctype="multipart/form-data">
+      <input type="file" name="arquivo" accept=".xlsx,.csv" required>
+      <button type="submit">Importar</button>
+    </form>
+  </section>
+
+  <section class="cards">
+    <article class="card metric {{ alerta }}">
+      <span>Total gasto no mes</span>
+      <strong>R$ {{ "%.2f"|format(total_mes) }}</strong>
+      <small>{{ "%.0f"|format(percentual) }}% do orcamento</small>
+    </article>
+    <article class="card metric">
+      <span>Orcamento restante</span>
+      <strong>R$ {{ "%.2f"|format(restante) }}</strong>
+      <small>Base mensal de R$ 1.000.000,00</small>
+    </article>
+    <article class="card metric">
+      <span>Maior secretaria</span>
+      <strong>{{ maior_secretaria }}</strong>
+      <small>Considerando todos os gastos visiveis</small>
+    </article>
+  </section>
+
+  <section class="grid two">
+    <article class="card">
+      <h2>Gastos por secretaria</h2>
+      <canvas id="secretariasChart"></canvas>
+    </article>
+    <article class="card">
+      <h2>Gastos por categoria</h2>
+      <canvas id="categoriasChart"></canvas>
+    </article>
+  </section>
+
+  <section class="card">
+    <div class="section-head">
+      <h2>Ultimos gastos</h2>
+      <a href="/gastos">Ver todos</a>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Secretaria</th>
+            <th>Categoria</th>
+            <th>Descricao</th>
+            <th>Valor</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for gasto in ultimos %}
+            <tr>
+              <td>{{ gasto.data.strftime("%d/%m/%Y") }}</td>
+              <td>{{ gasto.secretaria }}</td>
+              <td>{{ gasto.categoria }}</td>
+              <td>{{ gasto.descricao }}</td>
+              <td>R$ {{ "%.2f"|format(gasto.valor) }}</td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="5" class="empty">Nenhum gasto importado ainda.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <script>
+    const secretariaData = {{ por_secretaria|tojson }};
+    const categoriaData = {{ por_categoria|tojson }};
+
+    function chartFromObject(canvasId, dataObject) {
+      const labels = Object.keys(dataObject);
+      const values = Object.values(dataObject);
+      new Chart(document.getElementById(canvasId), {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [{
+            data: values,
+            backgroundColor: ["#2563eb", "#16a34a", "#f59e0b", "#dc2626", "#7c3aed"],
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+    }
+
+    chartFromObject("secretariasChart", secretariaData);
+    chartFromObject("categoriasChart", categoriaData);
+  </script>
+{% endblock %}

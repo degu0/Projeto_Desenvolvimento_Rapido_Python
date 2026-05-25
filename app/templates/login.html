@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <section class="login-panel">
+    <div>
+      <p class="eyebrow">MVP Prefeitura</p>
+      <h1>Controle financeiro simples para gestao municipal</h1>
+      <p class="muted">Entre, envie a planilha Excel e acompanhe os gastos por secretaria.</p>
+    </div>
+
+    <form class="card form" method="post" action="/login">
+      <h2>Entrar</h2>
+      {% if error %}
+        <p class="alert danger">{{ error }}</p>
+      {% endif %}
+      <label>
+        Email
+        <input name="email" type="email" value="prefeito@demo.com" required>
+      </label>
+      <label>
+        Senha
+        <input name="senha" type="password" value="123456" required>
+      </label>
+      <button type="submit">Acessar</button>
+      <p class="hint">Demo: prefeito@demo.com / 123456 ou saude@demo.com / 123456</p>
+    </form>
+  </section>
+{% endblock %}
