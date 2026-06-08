@@ -1,0 +1,31 @@
+secretaria,valor,categoria,descricao,data,responsavel
+Saude,63341.93,Medicamentos,Compra mensal de medicamentos basicos,2025-12-20,Ana Lima
+Educacao,57907.42,Material Escolar,Compra de materiais didaticos,2026-04-05,Marcos Oliveira
+Infraestrutura,3863.39,Contratos,Renovacao de contratos de manutencao,2026-05-10,Carlos Mendes
+Educacao,48232.34,Material Escolar,Compra de materiais didaticos,2026-04-07,Marcos Oliveira
+Educacao,50580.46,Pessoal,Pagamento de pessoal terceirizado,2026-02-14,Carlos Mendes
+Administracao,24485.62,Servicos,Contrato de servicos especializados,2026-04-22,Ana Lima
+Saude,33037.91,Medicamentos,Compra mensal de medicamentos basicos,2026-03-07,Roberto Costa
+Infraestrutura,68837.35,Equipamentos,Aquisicao de equipamentos,2026-03-05,Patricia Souza
+Saude,7803.46,Servicos,Contrato de servicos especializados,2026-01-15,Roberto Costa
+Infraestrutura,49582.11,Equipamentos,Aquisicao de equipamentos,2025-12-23,Carlos Mendes
+Educacao,83761.56,Manutencao,Reforma e manutencao predial,2026-05-21,Ana Lima
+Administracao,39195.78,Servicos,Contrato de servicos especializados,2026-05-07,Roberto Costa
+Obras,18756.69,Maquinario,Aluguel de retroescavadeira,2026-04-21,Roberto Costa
+Saude,45960.92,Equipamentos,Aquisicao de equipamentos,2025-12-04,Ana Lima
+Administracao,23821.63,TI,Licencas de software e suporte,2026-04-21,Marcos Oliveira
+Obras,20394.23,Infraestrutura,Recapeamento de vias publicas,2026-04-06,Carlos Mendes
+Administracao,6746.61,Servicos,Contrato de servicos especializados,2026-03-13,Marcos Oliveira
+Educacao,34353.95,Pessoal,Pagamento de pessoal terceirizado,2026-03-13,Patricia Souza
+Obras,21867.39,Materiais,Compra de cimento e agregados,2026-04-26,Marcos Oliveira
+Obras,76437.56,Mao de Obra,Contrato de mao de obra especializada,2026-01-15,Patricia Souza
+Educacao,43898.3,Transporte,Manutencao de onibus escolares,2026-03-01,Carlos Mendes
+Saude,53779.98,Equipamentos,Aquisicao de equipamentos,2026-05-20,Patricia Souza
+Saude,33179.7,Servicos,Contrato de servicos especializados,2025-12-31,Patricia Souza
+Obras,58207.75,Infraestrutura,Recapeamento de vias publicas,2026-01-17,Carlos Mendes
+Infraestrutura,65608.57,Equipamentos,Aquisicao de equipamentos,2025-12-09,Roberto Costa
+Obras,14453.62,Mao de Obra,Contrato de mao de obra especializada,2026-05-04,Carlos Mendes
+Infraestrutura,43743.72,Combustivel,Abastecimento da frota municipal,2026-03-26,Carlos Mendes
+Obras,14007.93,Materiais,Compra de cimento e agregados,2025-12-23,Ana Lima
+Infraestrutura,51391.56,Manutencao,Reforma e manutencao predial,2026-01-14,Patricia Souza
+Saude,74836.89,Pessoal,Pagamento de pessoal terceirizado,2026-05-28,Roberto Costa
