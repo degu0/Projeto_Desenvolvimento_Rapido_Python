@@ -177,6 +177,11 @@ button:hover,
   margin: 0;
 }
 
+.page-title .button {
+  align-self: flex-end;
+  white-space: nowrap;
+}
+
 .upload-band {
   align-items: center;
   display: grid;

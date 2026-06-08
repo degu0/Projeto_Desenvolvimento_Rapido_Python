@@ -1,9 +1,11 @@
+import csv
+import io
 from datetime import date
 from pathlib import Path
 from urllib.parse import quote
 
 from fastapi import Depends, FastAPI, File, Form, Request, UploadFile
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import extract, func
@@ -213,5 +215,104 @@ def gastos(
             "secretarias": secretarias,
             "categorias": categorias,
             "filters": {"secretaria": secretaria or "", "categoria": categoria or "", "data": data or ""},
+        },
+    )
+
+
+@app.get("/gastos/exportar")
+def exportar_gastos(
+    secretaria: str | None = None,
+    categoria: str | None = None,
+    data: str | None = None,
+    user: Usuario | None = Depends(current_user),
+    db: Session = Depends(get_db),
+):
+    user_or_redirect = require_user(user)
+    if isinstance(user_or_redirect, RedirectResponse):
+        return user_or_redirect
+
+    query = visible_gastos_query(db, user)
+    if secretaria and user.cargo == "prefeito":
+        query = query.filter(Gasto.secretaria == secretaria)
+    if categoria:
+        query = query.filter(Gasto.categoria == categoria)
+    if data:
+        try:
+            query = query.filter(Gasto.data == date.fromisoformat(data))
+        except ValueError:
+            pass
+
+    registros = query.order_by(Gasto.data.desc(), Gasto.id.desc()).all()
+
+    buffer = io.StringIO()
+    writer = csv.writer(buffer)
+    writer.writerow(["data", "secretaria", "categoria", "descricao", "valor"])
+    for g in registros:
+        writer.writerow([g.data.strftime("%d/%m/%Y"), g.secretaria, g.categoria, g.descricao, f"{g.valor:.2f}"])
+
+    buffer.seek(0)
+    return StreamingResponse(
+        iter([buffer.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=gastos.csv"},
+    )
+
+
+@app.get("/relatorio", response_class=HTMLResponse)
+def relatorio(
+    request: Request,
+    user: Usuario | None = Depends(current_user),
+    db: Session = Depends(get_db),
+):
+    user_or_redirect = require_user(user)
+    if isinstance(user_or_redirect, RedirectResponse):
+        return user_or_redirect
+
+    today = date.today()
+    query = visible_gastos_query(db, user)
+
+    # Últimos 6 meses — gera lista de (ano, mes) do mais antigo para o mais recente
+    meses = []
+    ano, mes = today.year, today.month
+    for _ in range(6):
+        meses.insert(0, (ano, mes))
+        mes -= 1
+        if mes == 0:
+            mes = 12
+            ano -= 1
+
+    evolucao = []
+    for ano_m, mes_m in meses:
+        total = (
+            query
+            .filter(extract("month", Gasto.data) == mes_m, extract("year", Gasto.data) == ano_m)
+            .with_entities(func.coalesce(func.sum(Gasto.valor), 0))
+            .scalar()
+        )
+        nome_mes = date(ano_m, mes_m, 1).strftime("%b/%Y")
+        evolucao.append({"mes": nome_mes, "total": float(total)})
+
+    # Ranking de secretarias (todos os tempos)
+    ranking = (
+        query
+        .with_entities(Gasto.secretaria, func.sum(Gasto.valor).label("total"))
+        .group_by(Gasto.secretaria)
+        .order_by(func.sum(Gasto.valor).desc())
+        .all()
+    )
+
+    # Total geral e quantidade de registros
+    total_geral = query.with_entities(func.coalesce(func.sum(Gasto.valor), 0)).scalar()
+    qtd_registros = query.count()
+
+    return templates.TemplateResponse(
+        "relatorio.html",
+        {
+            "request": request,
+            "user": user,
+            "evolucao": evolucao,
+            "ranking": ranking,
+            "total_geral": float(total_geral),
+            "qtd_registros": qtd_registros,
         },
     )

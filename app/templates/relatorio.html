@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <section class="page-title">
+    <div>
+      <p class="eyebrow">Analise</p>
+      <h1>Relatorio financeiro</h1>
+    </div>
+  </section>
+
+  <section class="cards" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 18px;">
+    <article class="card metric">
+      <span>Total geral importado</span>
+      <strong>R$ {{ "%.2f"|format(total_geral) }}</strong>
+      <small>Soma de todos os gastos visiveis</small>
+    </article>
+    <article class="card metric">
+      <span>Total de registros</span>
+      <strong>{{ qtd_registros }}</strong>
+      <small>Lancamentos cadastrados no sistema</small>
+    </article>
+  </section>
+
+  <section class="card" style="margin-bottom: 18px;">
+    <h2>Evolucao dos ultimos 6 meses</h2>
+    <canvas id="evolucaoChart" style="max-height: 320px;"></canvas>
+  </section>
+
+  <section class="card">
+    <h2>Ranking por secretaria</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Secretaria</th>
+            <th>Total gasto</th>
+            <th>% do total</th>
+            <th>Barra</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for sec, total in ranking %}
+            {% set pct = (total / total_geral * 100) if total_geral else 0 %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td><strong>{{ sec }}</strong></td>
+              <td>R$ {{ "%.2f"|format(total) }}</td>
+              <td>{{ "%.1f"|format(pct) }}%</td>
+              <td>
+                <div style="background:#e2e8f0; border-radius:4px; height:10px; width:100%; min-width:100px;">
+                  <div style="background:#2563eb; border-radius:4px; height:10px; width:{{ pct|round(1) }}%;"></div>
+                </div>
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="5" class="empty">Nenhum dado disponivel.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <script>
+    const evolucaoData = {{ evolucao | tojson }};
+    const labels = evolucaoData.map(d => d.mes);
+    const values = evolucaoData.map(d => d.total);
+
+    new Chart(document.getElementById("evolucaoChart"), {
+      type: "line",
+      data: {
+        labels,
+        datasets: [{
+          label: "Total gasto (R$)",
+          data: values,
+          borderColor: "#2563eb",
+          backgroundColor: "rgba(37,99,235,0.1)",
+          borderWidth: 2,
+          pointRadius: 5,
+          pointBackgroundColor: "#2563eb",
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => "R$ " + ctx.parsed.y.toLocaleString("pt-BR", { minimumFractionDigits: 2 })
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: val => "R$ " + val.toLocaleString("pt-BR")
+            }
+          }
+        }
+      }
+    });
+  </script>
+{% endblock %}
