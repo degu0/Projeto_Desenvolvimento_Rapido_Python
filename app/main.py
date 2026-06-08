@@ -1,4 +1,5 @@
 from datetime import date
+from pathlib import Path
 from urllib.parse import quote
 
 from fastapi import Depends, FastAPI, File, Form, Request, UploadFile
@@ -13,11 +14,13 @@ from .database import Base, engine, get_db
 from .excel import import_gastos_from_file
 from .models import Gasto, Usuario
 
+BASE_DIR = Path(__file__).parent
+
 ORCAMENTO_MENSAL = 1_000_000
 
 app = FastAPI(title="Plataforma de Inteligencia Municipal")
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
-templates = Jinja2Templates(directory="app/templates")
+app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
+templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 
 def create_demo_users(db: Session) -> None:
